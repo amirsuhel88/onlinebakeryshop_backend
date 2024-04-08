@@ -83,21 +83,21 @@ exports.login = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-
-
 //get user profile
 
 exports.getProfile = catchAsyncErrors(async (req, res, next) => {
-  console.log(req.user)
-  const userId = req.user.userId
+  //console.log(req.user);
+  const userId = req.user.userId;
   const sql = "SELECT * FROM users WHERE `id`=? ";
-  db.query(sql, [userId],(err, [data]) => {
+  db.query(sql, [userId], (err, [data]) => {
     if (err) {
       return res.json("Error");
     }
     return res.json(data);
   });
 });
+
+//user authentication
 
 exports.authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"]; //

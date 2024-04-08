@@ -33,8 +33,16 @@ exports.addProduct = catchAsyncErrors(async (req, res, next) => {
 
 //get All products
 
+//with pagination
 exports.getAllProducts = catchAsyncErrors(async (req, res, next) => {
-  const sql = "SELECT * FROM products";
+  // Define pagination parameters
+  const page = parseInt(req.query.page) || 1; // Current page, default is 1
+  const limit = parseInt(req.query.limit) || 10; // Number of items per page, default is 10
+  const offset = (page - 1) * limit; // Offset calculation
+
+  // SQL query with pagination
+  const sql = `SELECT * FROM products LIMIT ${limit} OFFSET ${offset}`;
+
   db.query(sql, (err, data) => {
     if (err) {
       return res.json("Error");
