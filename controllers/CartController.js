@@ -27,25 +27,34 @@ exports.getCartItems = catchAsyncErrors(async (req, res, next) => {
 exports.addToCart = catchAsyncErrors(async (req, res, next) => {
   console.log(req.user);
   const userId = req.user.userId;
-  const { quantity } = req.body; 
+  const productId = req.params.productId;
+  console.log(productId)
+  // Check if the product with given productId exists
+  const productExistsQuery = "SELECT * FROM products WHERE ProductId = ?";
+  db.query(productExistsQuery, [productId], async (err, results) => {
+    if (err) {
+      console.error("Error checking product existence:", err);
+      return res.status(500).json({ success: false, error: "Database error" });
+    }
 
-  if (!quantity) {
-    return res.status(400).json({ error: "Product and quantity are required" });
-  }
+    if (results.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Product not found" });
+    }
 
-  const insertSql =
-    "INSERT INTO cart (userId) VALUES (?)";
-
-  try {
-    await db.query(insertSql, [userId]);
-    return res
-      .status(201)
-      .json({ success: true, message: "Item added to cart successfully" });
-  } catch (error) {
-    console.error("Error inserting into cart:", error);
-    return res
-      .status(500)
-      .json({ success: false, error: "Failed to add item to cart" });
-  }
+    // Product exists, proceed to insert into cart
+    const insertSql = "INSERT INTO cart (userId, productId) VALUES (?, ?)";
+    try {
+      await db.query(insertSql, [userId, productId]);
+      return res
+        .status(201)
+        .json({ success: true, message: "Item added to cart successfully" });
+    } catch (error) {
+      console.error("Error inserting into cart:", error);
+      return res
+        .status(500)
+        .json({ success: false, error: "Failed to add item to cart" });
+    }
+  });
 });
-
