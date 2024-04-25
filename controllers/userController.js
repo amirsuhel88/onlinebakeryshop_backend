@@ -38,7 +38,7 @@ exports.signUp = catchAsyncErrors(async (req, res, next) => {
     db.query(sql, values, (err, data) => {
       console.log(err);
       if (err) {
-        return res.json("signup custom Error by me");
+        return res.json("signup custom Error by me", err);
       }
       return res.json("Signup successful");
     });
@@ -59,10 +59,9 @@ exports.login = catchAsyncErrors(async (req, res, next) => {
 
       if (data.length > 0) {
         const user = data[0];
-
+        
         // Compare hashed password
         const isMatch = await bcrypt.compare(password, user.password);
-
         if (isMatch) {
           // Passwords match, create token
           const token = jwt.sign({ userId: user.id }, "sdsdsdsdsdsdsdsd", {
